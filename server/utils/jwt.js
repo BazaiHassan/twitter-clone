@@ -35,6 +35,16 @@ export const decodeRefreshToken = (token) => {
   }
 };
 
+
+export const decodeAccessToken = (token) => {
+  const config = useRuntimeConfig();
+  try {
+    return jwt.verify(token, config.jwtAccessSecret);
+  } catch (error) {
+    return null;
+  }
+};
+
 export const sendRefreshToken = (event, token) => {
   setCookie(event, "refresh_token", token, {
     httpOnly: true,
