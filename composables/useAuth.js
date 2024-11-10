@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 export default () => {
   // Save user info
   const useAuthToken = () => useState("auth_token");
@@ -68,12 +70,34 @@ export default () => {
     });
   };
 
+  // To regenerate access token every 14 min
+  const reRefreshAccessToken = () => {
+    const authToken = useAuthToken()
+
+    if(!authToken.value){
+      return
+    }
+
+    const jwt = jwtDecode(authToken.value)
+    
+    const newRefreshTime = jwt.exp - 60000
+
+    setTimeout(async() => {
+      await refreshToken()
+      reRefreshAccessToken()
+    }, newRefreshTime);
+
+  }
+
   const initAuth = () => {
     return new Promise(async (resolve, reject) => {
         setIsAuthLoading(true)
       try {
         await refreshToken();
         await getUser();
+
+        reRefreshAccessToken()
+
         resolve(true);
       } catch (error) {
         reject(error);
