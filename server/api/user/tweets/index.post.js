@@ -4,7 +4,11 @@ import { createTweet } from "~/server/db/tweets";
 import { tweetTransformer } from "~/server/transformers/tweet";
 
 export default defineEventHandler(async (event) => {
-  const form = formidable({});
+  // Initialize formidable with options
+  const form = formidable({
+    multiples: true, // Enable multiple file uploads if needed
+    keepExtensions: true
+  });
 
   const response = await new Promise((resolve, reject) => {
     form.parse(event.node.req, (err, fields, files) => {
@@ -20,31 +24,42 @@ export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.user?.id;
 
   const tweetData = {
-    text: Array.isArray(fields.text) ? fields.text.join(" ") : fields.text, // I used chatgpt to fix this part
+    text: Array.isArray(fields.text) ? fields.text.join(" ") : fields.text,
     authorId: userId,
   };
 
   const tweet = await createTweet(tweetData);
 
-  // Create MediaFile
-  const filePromises = Object.keys(files).map(async (key) => {
+  // Handle files correctly
+  const filePromises = Object.values(files).map(async (fileArray) => {
+    // In newer versions of formidable, files are always returned in an array
+    const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
+    
+    if (!file) {
+      console.log('No file found in the request');
+      return null;
+    }
 
-    const file = files[key]
+    try {
+      const cloudinaryResource = await uploadToCloudinary(file.filepath);
 
-    const cloudinaryResource =await uploadToCloudinary(file.filePath)
-
-
-    return craeteMediaFile({
-      url: cloudinaryResource.secure_url,
-      providerPublicId: cloudinaryResource.public_id,
-      userId: userId,
-      tweetId: tweet.id,
-    });
+      return await craeteMediaFile({
+        url: cloudinaryResource.secure_url,
+        providerPublicId: cloudinaryResource.public_id,
+        userId: userId,
+        tweetId: tweet.id,
+      });
+    } catch (error) {
+      console.error('Error processing file:', error);
+      throw error;
+    }
   });
 
-  await Promise.all(filePromises)
+  // Filter out null values from filePromises results
+  const mediaFiles = (await Promise.all(filePromises)).filter(Boolean);
 
   return {
     tweet: tweetTransformer(tweet),
+    mediaFiles // Optionally return the media files information
   };
 });
