@@ -14,35 +14,37 @@
         type="password"
       />
       <div>
-        <button @click="handleLogin">Login</button>
+        <button
+          class="border px-4 py-2 rounded-full w-full bg-dim-100 text-white"
+          @click="handleLogin"
+        >
+          Login
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-
 const { login } = useAuth();
-
-
 
 const data = reactive({
   username: "",
   password: "",
-  loading:false
+  loading: false,
 });
 
 async function handleLogin() {
-  data.loading = true
+  data.loading = true;
   try {
     await login({
-        username:data.username,
-        password:data.password
-    })
+      username: data.username,
+      password: data.password,
+    });
   } catch (error) {
-    console.log(error)
-  } finally{
-    data.loading = false
+    console.log(error);
+  } finally {
+    data.loading = false;
   }
 }
 </script>

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   const userId = event.context?.auth?.user?.id;
 
   const tweetData = {
-    text: fields.text || "hello",
+    text: Array.isArray(fields.text) ? fields.text.join(" ") : fields.text, // I used chatgpt to fix this part
     authorId: userId,
   };
 
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
     const file = files[key]
 
-    const cloudinaryResource =await uploadToCloudinary(file)
+    const cloudinaryResource =await uploadToCloudinary(file.filePath)
 
 
     return craeteMediaFile({

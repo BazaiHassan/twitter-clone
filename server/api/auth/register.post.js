@@ -5,7 +5,8 @@ import { userTransformer } from "~/server/transformers/user";
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
-  const { username, password, repeatPassword, email, name } = body;
+  const { username, password, repeatPassword, email, name, profileImage } =
+    body;
 
   // Validation
   if (!username || !password || !repeatPassword || !email || !name) {
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
     password,
     email,
     name,
+    profileImage
   };
 
   const user = await createUser(userData);
