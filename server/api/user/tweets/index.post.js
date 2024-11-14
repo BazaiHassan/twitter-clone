@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   // Initialize formidable with options
   const form = formidable({
     multiples: true, // Enable multiple file uploads if needed
-    keepExtensions: true
+    keepExtensions: true,
   });
 
   const response = await new Promise((resolve, reject) => {
@@ -28,15 +28,27 @@ export default defineEventHandler(async (event) => {
     authorId: userId,
   };
 
+  // Fix replyTo handling
+  const replyTo = Array.isArray(fields.replyTo) ? fields.replyTo[0] : fields.replyTo;
+  
+  // Clean and validate replyTo value
+  if (replyTo && replyTo !== 'null' && replyTo !== 'undefined') {
+    // Remove any quotes and trim whitespace
+    const cleanReplyToId = replyTo.replace(/['"]+/g, '').trim();
+    if (cleanReplyToId) {
+      tweetData.replyToId = cleanReplyToId;
+    }
+  }
+
   const tweet = await createTweet(tweetData);
 
   // Handle files correctly
   const filePromises = Object.values(files).map(async (fileArray) => {
     // In newer versions of formidable, files are always returned in an array
     const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
-    
+
     if (!file) {
-      console.log('No file found in the request');
+      console.log("No file found in the request");
       return null;
     }
 
@@ -50,16 +62,14 @@ export default defineEventHandler(async (event) => {
         tweetId: tweet.id,
       });
     } catch (error) {
-      console.error('Error processing file:', error);
+      console.error("Error processing file:", error);
       throw error;
     }
   });
 
-  // Filter out null values from filePromises results
-  const mediaFiles = (await Promise.all(filePromises)).filter(Boolean);
+  await Promise.all(filePromises);
 
   return {
     tweet: tweetTransformer(tweet),
-    mediaFiles // Optionally return the media files information
   };
 });

@@ -4,7 +4,7 @@ const generateAccessTokens = (user) => {
   const config = useRuntimeConfig();
 
   return jwt.sign({ userId: user.id }, config.jwtAccessSecret, {
-    expiresIn: "10m",
+    expiresIn: "12h",
   });
 };
 
@@ -12,7 +12,7 @@ const generateRefreshTokens = (user) => {
   const config = useRuntimeConfig();
 
   return jwt.sign({ userId: user.id }, config.jwtRefreshSecret, {
-    expiresIn: "4h",
+    expiresIn: "24h",
   });
 };
 
