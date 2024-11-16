@@ -12,7 +12,7 @@
       <div class="w-full">
         <textarea
           v-model="text"
-          placeholder="What's happening?"
+          :placeholder="props.placeholder"
           class="w-full h-20 text-lg text-gray-900 placeholder:text-gray-400 bg-transparent border-0 dark:text-white focus:ring-0"
         ></textarea>
       </div>
@@ -140,6 +140,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  placeholder:{
+    type:String,
+    default:"What's new"
+  }
 });
 
 const emits = defineEmits(["onSubmit"]);
