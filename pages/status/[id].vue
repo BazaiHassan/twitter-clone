@@ -2,7 +2,7 @@
   <div>
     <MainSection title="Tweet" :loading="loading">
       <Head>
-        <Title></Title>
+        <Title>Tweets / {{ tweet.author.name }}</Title>
       </Head>
       <TweetDetails :tweet="tweet" :user="user" />
     </MainSection>
@@ -17,20 +17,17 @@ const { useAuthUser } = useAuth();
 
 const tweet = ref(null);
 const user = useAuthUser();
-
+const id = ref(null)
 function getTweetIdFromRoute() {
-  return useRoute().params.id;
+  id.value =  useRoute().params.id;
+  console.log(id.value)
 }
 
-watch(
-  () => useRoute().fullPath,
-  () => getTweet()
-);
 
 async function getTweet() {
   loading.value = true;
   try {
-    const response = await getTweetById(getTweetIdFromRoute());
+    const response = await getTweetById(id.value);
     tweet.value = response.tweet;
   } catch (error) {
     console.log(error);
@@ -40,6 +37,12 @@ async function getTweet() {
 }
 
 onBeforeMount(() => {
-  getTweet();
+  getTweetIdFromRoute()
+  getTweet()
 });
+
+watch(
+  () => useRoute().fullPath,
+  () => getTweet()
+);
 </script>

@@ -10,6 +10,7 @@
       :key="tweet.id"
       class="pb-4 border-b cursor-pointer hover:bg-gray-100 dark:hover:bg-dim-300"
       :class="[twitterBorderColor, defaultTransition]"
+      @click.prevent="redirect(tweet)"
     >
       <TweetItem :tweet="tweet" compact />
     </div>
@@ -26,4 +27,11 @@ const props = defineProps({
 
 const { twitterBorderColor, defaultTransition } = useTailwindConfig();
 const isEmptyArray = computed(() => props.tweets.length === 0);
+
+function redirect(tweet) {
+  navigateTo({
+    path:`/status/${tweet.id}`
+  })
+}
+
 </script>
