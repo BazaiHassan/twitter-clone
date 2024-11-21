@@ -23,7 +23,13 @@ const props = defineProps({
     type: String,
     default: "What's happening?",
   },
+  replyTo:{
+    type:Object,
+    default:null
+  }
 });
+
+const emits = defineEmits(['onSuccess'])
 
 const { postTweet } = useTweets();
 const loading = ref(false);
@@ -33,8 +39,11 @@ async function handleFormSubmit(data) {
     const response = await postTweet({
       text: data.text,
       mediaFiles: data.mediaFiles,
+      replyTo:props.replyTo?.id
     });
-    console.log("selected" + response);
+    
+    emits('onSuccess', response.tweet)
+
   } catch (error) {
     console.log("here:" + error);
   } finally {

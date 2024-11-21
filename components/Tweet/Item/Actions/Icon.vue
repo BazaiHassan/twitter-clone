@@ -3,7 +3,7 @@
     <div
       :class="`${defaultTransition} p-2 rounded-full group-hover:bg-${props.color}-100 group-hover:text-${props.color}-400`"
     >
-      <slot name="icon" classes="w-5 h-5" />
+      <slot name="icon" :classes="`w-${props.size} h-${props.size}`" />
     </div>
     <span
       :class="`ml-1 group-hover:text-${props.color}-400 dark:group-hover:bg-opacity-20`"
@@ -19,6 +19,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  size: {
+    type:String,
+    required:true
+  }
 });
 
 const { defaultTransition } = useTailwindConfig();
